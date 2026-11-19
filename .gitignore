@@ -7,6 +7,9 @@ __pycache__/
 .venv/
 venv/
 env/
+load-results/
+*.stats.csv
+*.failures.csv
 
 # Local databases and application data
 *.db

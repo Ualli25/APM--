@@ -1,0 +1,7 @@
+flowchart LR
+    U[Секретарь / член совета] --> UI[Streamlit UI<br/>app/frontend/ui.py]
+    UI -->|HTTP JSON| API[FastAPI REST API<br/>app/main.py + routers]
+    API -->|SQLModel sessions| DB[(SQLite<br/>database.db)]
+    API --> VAL[Валидация Pydantic]
+    CI[GitHub Actions] -->|pytest + Bandit| API
+    LOAD[Locust<br/>только локальный API] -->|GET /health, /api/members, /api/councils| API

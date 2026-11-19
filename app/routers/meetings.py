@@ -9,7 +9,7 @@ from sqlmodel import Session, select
 
 from app.database.db import get_session
 from app.database.models import (
-    CouncilComposition, CouncilMember, Dissertation, Meeting, MeetingAttendance,
+    Council, CouncilComposition, CouncilMember, Dissertation, Meeting, MeetingAttendance,
     Protocol, Vote, Decision, User,
 )
 
@@ -69,6 +69,10 @@ def list_meetings(session: Session = Depends(get_session)):
 
 @router.post("", response_model=MeetingOut, status_code=status.HTTP_201_CREATED)
 def create_meeting(payload: MeetingCreate, session: Session = Depends(get_session)):
+    if session.get(Council, payload.council_id) is None:
+        raise HTTPException(status_code=404, detail="Совет не найден")
+    if payload.dissertation_id is not None and session.get(Dissertation, payload.dissertation_id) is None:
+        raise HTTPException(status_code=404, detail="Диссертационное дело не найдено")
     meeting = Meeting(
         council_id=payload.council_id,
         dissertation_id=payload.dissertation_id,

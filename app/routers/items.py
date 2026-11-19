@@ -87,6 +87,14 @@ def list_members(q: Optional[str] = None, session: Session = Depends(get_session
     return session.exec(statement).all()
 
 
+@router.get("/members/{member_id}", response_model=MemberOut)
+def get_member(member_id: int, session: Session = Depends(get_session)):
+    member = session.get(CouncilMember, member_id)
+    if member is None:
+        raise HTTPException(status_code=404, detail="Член совета не найден")
+    return member
+
+
 @router.post("/members", response_model=MemberOut, status_code=status.HTTP_201_CREATED)
 def create_member(payload: MemberCreate, session: Session = Depends(get_session)):
     _ensure_specialty(session, payload.specialty_id)
@@ -95,6 +103,29 @@ def create_member(payload: MemberCreate, session: Session = Depends(get_session)
     session.commit()
     session.refresh(member)
     return member
+
+
+@router.put("/members/{member_id}", response_model=MemberOut)
+def update_member(member_id: int, payload: MemberCreate, session: Session = Depends(get_session)):
+    member = session.get(CouncilMember, member_id)
+    if member is None:
+        raise HTTPException(status_code=404, detail="Член совета не найден")
+    _ensure_specialty(session, payload.specialty_id)
+    for field, value in payload.model_dump().items():
+        setattr(member, field, value)
+    session.add(member)
+    session.commit()
+    session.refresh(member)
+    return member
+
+
+@router.delete("/members/{member_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_member(member_id: int, session: Session = Depends(get_session)):
+    member = session.get(CouncilMember, member_id)
+    if member is None:
+        raise HTTPException(status_code=404, detail="Член совета не найден")
+    session.delete(member)
+    session.commit()
 
 
 @router.get("/candidates", response_model=list[CandidateOut])

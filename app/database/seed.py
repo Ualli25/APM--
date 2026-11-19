@@ -40,10 +40,12 @@ def migrate_legacy_database() -> bool:
             if not shared_columns:
                 continue
             columns = ", ".join(f'"{name}"' for name in shared_columns)
-            rows = source.execute(f"SELECT {columns} FROM {table}").fetchall()
+            # These identifiers come from the fixed table allowlist and local SQLite schema; values are never interpolated.
+            rows = source.execute(f"SELECT {columns} FROM {table}").fetchall()  # nosec B608
             if rows:
                 marks = ", ".join("?" for _ in shared_columns)
-                target.executemany(f"INSERT INTO {table} ({columns}) VALUES ({marks})", rows)
+                # Identifiers come from the local schemas; row values use SQLite placeholders.
+                target.executemany(f"INSERT INTO {table} ({columns}) VALUES ({marks})", rows)  # nosec B608
         target.commit()
     return True
 
