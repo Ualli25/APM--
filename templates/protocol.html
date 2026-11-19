@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Протокол {{ b.p.protocol_number }}{% endblock %}
+{% block content %}
+{% set p = b.p %}
+<div class="page-head noprint">
+  <div>
+    <a class="crumb" href="{{ url_for('meetings_detail', meeting_id=p.meeting_id) }}">← К заседанию</a>
+    <h1>Протокол {{ p.protocol_number }}</h1>
+  </div>
+  <button class="btn primary" onclick="window.print()">Печать / сохранить в PDF</button>
+</div>
+
+<article class="paper">
+  <p class="center">Диссертационный совет {{ p.council_number }}<br>{{ p.council_name }}<br>{{ p.department }}</p>
+  <h1>ПРОТОКОЛ № {{ p.protocol_number }}</h1>
+  <p class="center">заседания диссертационного совета от {{ p.meeting_date|dt }}</p>
+
+  <p><b>Присутствовали</b> ({{ attendees|length }} чел.):</p>
+  <table>
+    <thead><tr><th>№</th><th>ФИО</th><th>Степень, звание</th><th>Специальность</th></tr></thead>
+    <tbody>
+    {% for a in attendees %}
+      <tr><td>{{ loop.index }}</td><td>{{ a.full_name }}</td>
+          <td>{{ DEGREE[a.degree] }}{% if a.academic_title %}, {{ a.academic_title }}{% endif %}</td><td>{{ a.spec_code }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <p><b>Повестка:</b> защита диссертации {{ p.candidate }} на тему «{{ p.topic }}» на соискание учёной степени
+     {{ 'кандидата наук' if p.degree_sought == 'candidate' else 'доктора наук' }} по специальности {{ p.spec_code }} — {{ p.spec_name }}.</p>
+
+  <p><b>Результаты голосования:</b></p>
+  <table>
+    <thead><tr><th>№</th><th>ФИО члена совета</th><th>Голос</th></tr></thead>
+    <tbody>
+    {% for v in b.votes %}
+      <tr><td>{{ loop.index }}</td><td>{{ v.full_name }}</td><td>{{ VOTE[v.vote_value] }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <p><b>Решение совета:</b> {{ b.decision.decision_text }}</p>
+
+  <div class="sign">
+    <span>Председатель совета</span>
+    <span>Учёный секретарь ({{ p.created_by_name }})</span>
+  </div>
+  <p style="margin-top:28px;font-size:13px;color:#555">Протокол сформирован в АРМ Секретаря Учёного совета, дата подписания: {{ p.signed_date|d }}.</p>
+</article>
+{% endblock %}

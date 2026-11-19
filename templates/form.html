@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="crumb" href="{{ back }}">← Назад</a>
+    <h1>{{ title }}</h1>
+    {% if subtitle %}<p class="sub">{{ subtitle }}</p>{% endif %}
+  </div>
+</div>
+
+<form method="post" class="card form" novalidate>
+  {% for f in fields %}
+  <div class="field {{ 'has-error' if errors.get(f.name) }}">
+    <label for="{{ f.name }}">{{ f.label }}{% if f.get('required', True) %}<span class="req">*</span>{% endif %}</label>
+    {% if f.type == 'select' %}
+      <select id="{{ f.name }}" name="{{ f.name }}">
+        <option value="">{{ f.placeholder or '— выберите —' }}</option>
+        {% for v, l in f.options %}
+          <option value="{{ v }}" {{ 'selected' if values.get(f.name)|string == v|string }}>{{ l }}</option>
+        {% endfor %}
+      </select>
+    {% elif f.type == 'textarea' %}
+      <textarea id="{{ f.name }}" name="{{ f.name }}" rows="4">{{ values.get(f.name, '') }}</textarea>
+    {% else %}
+      <input id="{{ f.name }}" name="{{ f.name }}" type="{{ f.type }}" value="{{ values.get(f.name, '') }}">
+    {% endif %}
+    {% if f.hint %}<small>{{ f.hint }}</small>{% endif %}
+    {% if errors.get(f.name) %}<div class="err">{{ errors[f.name] }}</div>{% endif %}
+  </div>
+  {% endfor %}
+  <div class="form-actions">
+    <button class="btn primary" type="submit">Сохранить</button>
+    <a class="btn ghost" href="{{ back }}">Отмена</a>
+  </div>
+</form>
+{% endblock %}

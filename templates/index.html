@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Здравствуйте{% if user.full_name.split()|length >= 3 %}, {{ user.full_name.split()[1] }}{% endif %}</h1>
+    <p class="sub">Сводка по диссертационным советам, заседаниям и делам соискателей.</p>
+  </div>
+  {% if can_write %}<a class="btn gold" href="{{ url_for('meetings_new') }}">+ Назначить заседание</a>{% endif %}
+</div>
+
+<div class="tiles">
+  {% for label, value, href in stats %}
+  <a class="tile" href="{{ href }}"><b>{{ value }}</b><span>{{ label }}</span></a>
+  {% endfor %}
+</div>
+
+<div class="grid-3">
+  <section class="card">
+    <h2>Ближайшие заседания</h2>
+    {% if upcoming %}
+    <table class="tbl compact">
+      <thead><tr><th>Дата</th><th>Совет</th><th>Повестка</th></tr></thead>
+      <tbody>
+      {% for r in upcoming %}
+        <tr>
+          <td class="nw"><a href="{{ url_for('meetings_detail', meeting_id=r.meeting_id) }}">{{ r.meeting_date|dt }}</a></td>
+          <td class="nw">{{ r.number }}</td>
+          <td>{% if r.candidate %}{{ r.candidate }} — {{ r.topic }}{% else %}Организационное заседание{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="empty">Запланированных заседаний нет</div>{% endif %}
+  </section>
+
+  <section class="card pipeline">
+    <h2>Дела по статусам</h2>
+    {% for label, n, pct, code in pipeline %}
+    <div class="line">
+      <span>{{ label }}</span>
+      <div class="bar"><i style="width: {{ pct }}%"></i></div>
+      <b>{{ n }}</b>
+    </div>
+    {% endfor %}
+  </section>
+</div>
+
+<div class="grid-3">
+  <section class="card">
+    <h2>Готовность советов к кворуму</h2>
+    <table class="tbl compact">
+      <thead><tr><th>Совет</th><th>Состав</th><th>Для кворума</th><th>Докторов наук</th></tr></thead>
+      <tbody>
+      {% for c in councils %}
+        <tr>
+          <td class="nw"><a href="{{ url_for('councils_detail', council_id=c.council_id) }}">{{ c.number }}</a></td>
+          <td>{{ c.n }} чел.</td>
+          <td>не менее {{ c.required }}</td>
+          <td>{{ c.doctors }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Последние действия</h2>
+    {% for r in recent %}
+    <div style="padding:7px 0;border-bottom:1px solid #f0ece1;font-size:13.5px">
+      <b>{{ ACTION_LABELS.get(r.action, r.action) }}</b> · {{ ENTITY_LABELS.get(r.entity, r.entity) }}<br>
+      <span style="color:var(--muted)">{{ r.full_name or '—' }}, {{ r.created_at|dt }}</span>
+    </div>
+    {% endfor %}
+    <p style="margin:12px 0 0"><a href="{{ url_for('audit_view') }}">Весь журнал →</a></p>
+  </section>
+</div>
+{% endblock %}

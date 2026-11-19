@@ -1,0 +1,28 @@
+# Python and virtual environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.coverage.*
+.venv/
+venv/
+env/
+
+# Local databases and application data
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+/data/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# IDE and operating system files
+.idea/
+.vscode/*.local.json
+.DS_Store
+Thumbs.db

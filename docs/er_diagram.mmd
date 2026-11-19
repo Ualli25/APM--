@@ -1,0 +1,20 @@
+erDiagram
+    ROLES ||--o{ USERS : grants
+    SPECIALTIES ||--o{ COUNCIL_MEMBERS : qualifies
+    SPECIALTIES ||--o{ CANDIDATES : seeks
+    COUNCILS ||--o{ COUNCIL_COMPOSITION : includes
+    COUNCIL_MEMBERS ||--o{ COUNCIL_COMPOSITION : serves
+    CANDIDATES ||--o{ DISSERTATIONS : submits
+    COUNCILS ||--o{ DISSERTATIONS : reviews
+    SPECIALTIES ||--o{ DISSERTATIONS : classifies
+    COUNCILS ||--o{ MEETINGS : holds
+    DISSERTATIONS ||--o{ MEETINGS : considered_at
+    MEETINGS ||--o{ MEETING_ATTENDANCE : records
+    COUNCIL_MEMBERS ||--o{ MEETING_ATTENDANCE : attends
+    MEETINGS ||--o| PROTOCOLS : documented_by
+    USERS ||--o{ PROTOCOLS : creates
+    PROTOCOLS ||--o{ VOTES : contains
+    COUNCIL_MEMBERS ||--o{ VOTES : casts
+    MEETINGS ||--o| DECISIONS : produces
+    DISSERTATIONS ||--o{ DECISIONS : receives
+    USERS ||--o{ AUDIT_LOG : performs

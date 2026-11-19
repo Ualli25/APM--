@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ title }}</h1>
+    {% if subtitle %}<p class="sub">{{ subtitle }}</p>{% endif %}
+  </div>
+  {% if add_url and can_write %}<a class="btn primary" href="{{ add_url }}">+ {{ add_label }}</a>{% endif %}
+</div>
+
+{% if filters %}
+<form class="filters" method="get">
+  {% for f in filters %}
+  <label>{{ f.label }}
+    {% if f.type == 'select' %}
+      <select name="{{ f.name }}">
+        <option value="">Все</option>
+        {% for v, l in f.options %}<option value="{{ v }}" {{ 'selected' if f.value|string == v|string }}>{{ l }}</option>{% endfor %}
+      </select>
+    {% else %}
+      <input type="search" name="{{ f.name }}" value="{{ f.value }}" placeholder="{{ f.placeholder }}">
+    {% endif %}
+  </label>
+  {% endfor %}
+  <button class="btn" type="submit">Найти</button>
+  <a class="btn ghost" href="{{ request.path }}">Сбросить</a>
+</form>
+{% endif %}
+
+<div class="card table-card">
+  {% if rows %}
+  <table class="tbl">
+    <thead><tr>
+      {% for c in columns %}<th>{{ c }}</th>{% endfor %}
+      {% if has_actions %}<th></th>{% endif %}
+    </tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        {% for c in r.cells %}
+        <td>
+          {% if c is mapping %}
+            {% if c.badge %}<span class="badge {{ c.badge }}">{{ c.t }}</span>
+            {% elif c.href %}<a href="{{ c.href }}">{{ c.t }}</a>
+            {% else %}{{ c.t }}{% endif %}
+          {% else %}{{ c }}{% endif %}
+        </td>
+        {% endfor %}
+        {% if has_actions %}
+        <td class="act">
+          {% for a in r.actions %}
+            {% if a.post %}
+              <form method="post" action="{{ a.post }}" class="inline" onsubmit="return confirm({{ a.confirm|tojson }})">
+                <button class="link danger" type="submit">{{ a.label }}</button>
+              </form>
+            {% else %}<a href="{{ a.href }}">{{ a.label }}</a>{% endif %}
+          {% endfor %}
+        </td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <div class="empty">{{ empty or 'Записей не найдено' }}</div>
+  {% endif %}
+</div>
+{% endblock %}

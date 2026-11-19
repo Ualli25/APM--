@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Совет {{ c.number }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="crumb" href="{{ url_for('councils_list') }}">← Все советы</a>
+    <h1>Совет {{ c.number }}</h1>
+    <p class="sub">{{ c.name }} · {{ c.department }} · <span class="badge {{ badge(c.status) }}">{{ COUNCIL_STATUS[c.status] }}</span></p>
+  </div>
+  {% if can_write %}<a class="btn" href="{{ url_for('councils_edit', council_id=c.council_id) }}">Изменить</a>{% endif %}
+</div>
+
+<div class="grid-2">
+  <section class="card"><h2>Состав</h2>
+    <dl class="kv">
+      <dt>Членов совета</dt><dd><b>{{ n }}</b></dd>
+      <dt>Докторов наук</dt><dd>{{ doctors }}</dd>
+    </dl>
+  </section>
+  <section class="card"><h2>Правила кворума</h2>
+    <dl class="kv">
+      <dt>Общий кворум</dt><dd>не менее <b>{{ required }}</b> из {{ n }} членов совета (2/3)</dd>
+      <dt>По специальности</dt><dd>не менее <b>{{ min_spec }}</b> докторов наук по специальности дела</dd>
+    </dl>
+  </section>
+</div>
+
+<section class="card table-card" style="margin-bottom:18px">
+  <div style="padding:18px 22px 6px"><h2>Состав совета</h2></div>
+  {% if comp %}
+  <table class="tbl">
+    <thead><tr><th>ФИО</th><th>Должность в совете</th><th>Степень</th><th>Специальность</th><th>В составе с</th>{% if can_write %}<th></th>{% endif %}</tr></thead>
+    <tbody>
+    {% for r in comp %}
+      <tr>
+        <td>{{ r.full_name }}</td>
+        <td>{{ POSITION[r.position_in_council] }}</td>
+        <td>{{ DEGREE[r.degree] }}{% if r.academic_title %}, {{ r.academic_title }}{% endif %}</td>
+        <td>{{ r.spec_code }}</td>
+        <td>{{ r.date_from|d }}</td>
+        {% if can_write %}<td class="act">
+          <form method="post" class="inline" action="{{ url_for('council_member_remove', council_id=c.council_id, member_id=r.member_id) }}"
+                onsubmit="return confirm({{ ('Исключить из состава: ' ~ r.full_name ~ '?')|tojson }})">
+            <button class="link danger" type="submit">Исключить</button>
+          </form></td>{% endif %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<div class="empty">В составе совета пока никого нет</div>{% endif %}
+
+  {% if can_write %}
+  <form method="post" action="{{ url_for('council_member_add', council_id=c.council_id) }}" class="filters" style="padding:16px 22px;border-top:1px solid var(--line);margin:0;background:#fbf9f4">
+    <label>Добавить в состав
+      <select name="member_id" required style="min-width:260px">
+        <option value="">— выберите члена совета —</option>
+        {% for a in available %}<option value="{{ a.member_id }}">{{ a.full_name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Должность
+      <select name="position">{% for k, v in POSITION.items() %}<option value="{{ k }}" {{ 'selected' if k == 'member' }}>{{ v }}</option>{% endfor %}</select>
+    </label>
+    <button class="btn primary" type="submit">Добавить</button>
+  </form>
+  {% endif %}
+</section>
+
+<div class="grid-2">
+  <section class="card"><h2>Диссертационные дела</h2>
+    {% for d in diss %}
+      <div style="padding:8px 0;border-bottom:1px solid #f0ece1">
+        <b>{{ d.candidate }}</b> <span class="badge {{ badge(d.status) }}">{{ DISS_STATUS[d.status] }}</span><br>
+        <span style="color:var(--muted)">{{ d.topic }}</span>
+      </div>
+    {% else %}<div class="empty">Дел нет</div>{% endfor %}
+  </section>
+  <section class="card"><h2>Заседания</h2>
+    {% for m in meetings %}
+      <div style="padding:8px 0;border-bottom:1px solid #f0ece1">
+        <a href="{{ url_for('meetings_detail', meeting_id=m.meeting_id) }}">Заседание №{{ m.meeting_id }}</a>
+        · {{ m.meeting_date|dt }} <span class="badge {{ badge(m.status) }}">{{ MEETING_STATUS[m.status] }}</span>
+      </div>
+    {% else %}<div class="empty">Заседаний нет</div>{% endfor %}
+  </section>
+</div>
+{% endblock %}

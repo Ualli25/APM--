@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Заседание №{{ m.meeting_id }}{% endblock %}
+{% block content %}
+{% set locked = bundle is not none or m.status == 'cancelled' %}
+<div class="page-head">
+  <div>
+    <a class="crumb" href="{{ url_for('meetings_list') }}">← Все заседания</a>
+    <h1>Заседание №{{ m.meeting_id }}</h1>
+    <p class="sub">{{ m.council_number }} · {{ m.meeting_date|dt }} · <span class="badge {{ badge(m.status) }}">{{ MEETING_STATUS[m.status] }}</span></p>
+  </div>
+  {% if can_write and m.status == 'planned' %}<a class="btn" href="{{ url_for('meetings_edit', meeting_id=m.meeting_id) }}">Изменить</a>{% endif %}
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <h2>Повестка</h2>
+    {% if m.candidate %}
+    <dl class="kv">
+      <dt>Соискатель</dt><dd><b>{{ m.candidate }}</b></dd>
+      <dt>Тема</dt><dd>{{ m.topic }}</dd>
+      <dt>Специальность</dt><dd>{{ m.spec_code }}</dd>
+      <dt>Искомая степень</dt><dd>{{ DEGREE[m.degree_sought] }}</dd>
+    </dl>
+    {% else %}
+      <p class="sub">Организационное заседание — диссертационное дело не выбрано.</p>
+    {% endif %}
+  </section>
+
+  <section class="card quorum {{ 'ok' if q.ok }}">
+    <div class="q-verdict">
+      <span class="badge {{ 'green' if q.ok else 'red' }}">{{ 'Кворум есть' if q.ok else 'Кворума нет' }}</span>
+      <b>{{ q.present_count }} из {{ q.total }} присутствуют</b>
+    </div>
+    <div class="meter">
+      <div class="row"><span>Явка (нужно не менее {{ q.required }})</span><b>{{ q.present_count }} / {{ q.required }}</b></div>
+      <div class="bar"><i class="{{ 'good' if q.present_count >= q.required }}" style="width: {{ [100, (q.present_count * 100 / (q.required or 1))|round|int]|min }}%"></i></div>
+    </div>
+    {% if q.has_specialty %}
+    <div class="meter">
+      <div class="row"><span>Доктора наук по специальности {{ q.spec_code }}</span><b>{{ q.specialists_count }} / {{ q.min_specialists }}</b></div>
+      <div class="bar"><i class="{{ 'good' if q.specialists_count >= q.min_specialists }}" style="width: {{ [100, (q.specialists_count * 100 / q.min_specialists)|round|int]|min }}%"></i></div>
+    </div>
+    {% endif %}
+    {% if q.reasons %}<ul class="reasons">{% for r in q.reasons %}<li>{{ r }}</li>{% endfor %}</ul>{% endif %}
+  </section>
+</div>
+
+<form method="post" action="{{ url_for('meetings_attendance', meeting_id=m.meeting_id) }}" class="card table-card" style="margin-bottom:18px">
+  <div style="padding:18px 22px 6px"><h2>Явка членов совета</h2></div>
+  <table class="tbl">
+    <thead><tr><th style="width:70px">Присутствует</th><th>ФИО</th><th>Должность</th><th>Степень</th><th>Специальность</th></tr></thead>
+    <tbody>
+    {% for r in att %}
+      <tr>
+        <td><input type="checkbox" name="present" value="{{ r.member_id }}" style="width:auto" {{ 'checked' if r.is_present }} {{ 'disabled' if locked or not can_write }}></td>
+        <td>{{ r.full_name }}</td>
+        <td>{{ POSITION[r.position_in_council] }}</td>
+        <td>{{ DEGREE[r.degree] }}</td>
+        <td>{{ r.spec_code }}{% if r.degree == 'doctor' and q.has_specialty and r.spec_code == q.spec_code %}<span class="tag">профильный</span>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% if can_write and not locked %}
+  <div style="padding:14px 22px;border-top:1px solid var(--line);background:#fbf9f4">
+    <button class="btn primary" type="submit">Сохранить явку и пересчитать кворум</button>
+  </div>
+  {% endif %}
+</form>
+
+{% if bundle %}
+<section class="card">
+  <h2>Протокол и решение совета</h2>
+  <dl class="kv">
+    <dt>Протокол</dt><dd><b>{{ bundle.p.protocol_number }}</b> от {{ bundle.p.signed_date|d }}</dd>
+    <dt>Результат</dt><dd><span class="badge {{ badge(bundle.decision.result) }}">{{ RESULT[bundle.decision.result] }}</span></dd>
+    <dt>Решение</dt><dd>{{ bundle.decision.decision_text }}</dd>
+  </dl>
+  <p style="margin:16px 0 0"><a class="btn primary" href="{{ url_for('protocol_view', protocol_id=bundle.p.protocol_id) }}">Открыть печатную форму протокола</a></p>
+</section>
+{% elif m.status != 'cancelled' and can_write %}
+<section class="card">
+  <h2>Оформление протокола</h2>
+  {% if not m.candidate %}
+    <p class="sub">Протокол оформляется по диссертационному делу. Выберите дело в параметрах заседания.</p>
+  {% elif not q.ok %}
+    <div class="flash warn" style="margin-bottom:0">
+      Оформить протокол нельзя: кворум не достигнут. Отметьте присутствующих и сохраните явку.
+    </div>
+  {% else %}
+    <p class="sub" style="margin-bottom:14px">Кворум есть. Укажите голос каждого присутствующего члена совета — решение будет сформировано автоматически (для положительного решения нужно не менее 2/3 голосов «за»).</p>
+    <form method="post" action="{{ url_for('meetings_protocol', meeting_id=m.meeting_id) }}">
+      <div class="vote-grid">
+        {% for r in q.present %}
+          <div>{{ r.full_name }}</div>
+          <select name="vote_{{ r.member_id }}" required>
+            <option value="for">За</option><option value="against">Против</option><option value="abstain">Воздержался</option>
+          </select>
+        {% endfor %}
+      </div>
+      <p style="margin:18px 0 0"><button class="btn gold" type="submit">Оформить протокол и решение</button></p>
+    </form>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

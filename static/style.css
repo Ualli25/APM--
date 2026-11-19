@@ -1,0 +1,187 @@
+:root {
+  --navy: #14243b;
+  --navy-2: #1e3556;
+  --paper: #f5f2ea;
+  --card: #ffffff;
+  --ink: #1c2430;
+  --muted: #667085;
+  --line: #e6e1d4;
+  --accent: #b8892b;
+  --ok: #2f7d4f;
+  --ok-bg: #e5f3ea;
+  --warn: #9a6a12;
+  --warn-bg: #fbf0d6;
+  --bad: #b4372f;
+  --bad-bg: #fbe5e3;
+  --info: #2b5f9e;
+  --info-bg: #e3edf9;
+  --gray-bg: #eceae3;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 15px/1.55 "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+}
+h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: 28px; }
+h2 { font-size: 19px; }
+a { color: var(--info); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---------- каркас ---------- */
+.shell { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+.shell.solo { display: block; }
+.nw { white-space: nowrap; }
+.side {
+  background: var(--navy); color: #c9d3e3; padding: 24px 16px;
+  display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
+}
+.brand { padding: 0 10px 22px; border-bottom: 1px solid rgba(255,255,255,.12); margin-bottom: 16px; }
+.brand b { display: block; font-family: Georgia, serif; font-size: 20px; color: #fff; line-height: 1.2; }
+.brand span { font-size: 12px; color: #98a8c2; letter-spacing: .04em; text-transform: uppercase; }
+.brand i { display: block; width: 28px; height: 3px; background: var(--accent); margin-bottom: 12px; }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav a {
+  color: #c9d3e3; padding: 9px 12px; border-radius: 8px; font-size: 14.5px;
+  border-left: 3px solid transparent;
+}
+.nav a:hover { background: var(--navy-2); text-decoration: none; color: #fff; }
+.nav a.active { background: var(--navy-2); color: #fff; border-left-color: var(--accent); font-weight: 600; }
+.who { margin-top: auto; padding: 14px 10px 0; border-top: 1px solid rgba(255,255,255,.12); font-size: 13px; }
+.who b { display: block; color: #fff; font-size: 14px; }
+.who small { color: #98a8c2; }
+.who button { margin-top: 10px; }
+.main { padding: 32px 40px 60px; max-width: 1180px; width: 100%; }
+.main.bare { margin: 0 auto; padding-top: 8vh; max-width: 460px; }
+
+/* ---------- заголовки страниц ---------- */
+.page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+.sub { color: var(--muted); margin: 6px 0 0; max-width: 640px; }
+.crumb { font-size: 13px; color: var(--muted); display: inline-block; margin-bottom: 6px; }
+
+/* ---------- кнопки ---------- */
+.btn, button.btn {
+  display: inline-block; padding: 9px 16px; border-radius: 8px; border: 1px solid #c9c3b3;
+  background: #fff; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; text-decoration: none;
+}
+.btn:hover { background: #faf8f2; text-decoration: none; }
+.btn.primary { background: var(--navy); border-color: var(--navy); color: #fff; }
+.btn.primary:hover { background: var(--navy-2); }
+.btn.gold { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--muted); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.side .btn { background: transparent; border-color: rgba(255,255,255,.25); color: #dbe3f0; padding: 6px 12px; }
+.side .btn:hover { background: var(--navy-2); }
+button.link { background: none; border: 0; padding: 0; font: inherit; color: var(--info); cursor: pointer; }
+button.link:hover { text-decoration: underline; }
+button.link.danger, .danger { color: var(--bad); }
+form.inline { display: inline; }
+
+/* ---------- карточки ---------- */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; }
+.card h2 { margin-bottom: 12px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+.grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; margin-bottom: 18px; }
+.stack > * + * { margin-top: 18px; }
+
+/* ---------- плитки статистики ---------- */
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
+.tile { background: var(--card); border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 12px; padding: 16px 18px; color: var(--ink); }
+.tile:hover { text-decoration: none; box-shadow: 0 4px 14px rgba(20,36,59,.08); }
+.tile b { display: block; font: 700 34px/1.1 Georgia, serif; color: var(--navy); }
+.tile span { color: var(--muted); font-size: 13.5px; }
+
+/* ---------- таблицы ---------- */
+.table-card { padding: 0; overflow-x: auto; }
+table.tbl { width: 100%; border-collapse: collapse; }
+.tbl th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: 12px 16px; border-bottom: 1px solid var(--line); background: #fbf9f4; white-space: nowrap; }
+.tbl td { padding: 12px 16px; border-bottom: 1px solid #f0ece1; vertical-align: top; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl tbody tr:hover { background: #fcfbf7; }
+.tbl td.act { text-align: right; white-space: nowrap; }
+.tbl td.act > * { margin-left: 14px; }
+.tbl.compact td, .tbl.compact th { padding: 9px 14px; }
+.empty { padding: 36px; text-align: center; color: var(--muted); }
+
+/* ---------- бейджи ---------- */
+.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.badge.green { background: var(--ok-bg); color: var(--ok); }
+.badge.red { background: var(--bad-bg); color: var(--bad); }
+.badge.amber { background: var(--warn-bg); color: var(--warn); }
+.badge.blue { background: var(--info-bg); color: var(--info); }
+.badge.gray { background: var(--gray-bg); color: #5b6270; }
+.tag { font-size: 12px; background: var(--info-bg); color: var(--info); padding: 1px 8px; border-radius: 6px; margin-left: 6px; }
+
+/* ---------- фильтры и формы ---------- */
+.filters { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
+.filters label { display: flex; flex-direction: column; font-size: 12.5px; color: var(--muted); gap: 4px; }
+input, select, textarea {
+  font: inherit; font-size: 14.5px; padding: 9px 12px; border: 1px solid #cfc9b9; border-radius: 8px;
+  background: #fff; color: var(--ink); width: 100%;
+}
+.filters input, .filters select { width: auto; min-width: 180px; }
+input:focus, select:focus, textarea:focus { outline: 2px solid rgba(184,137,43,.45); border-color: var(--accent); }
+.form { max-width: 640px; }
+.field { margin-bottom: 18px; }
+.field label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+.field .req { color: var(--bad); margin-left: 3px; }
+.field small { display: block; color: var(--muted); margin-top: 5px; }
+.field.has-error input, .field.has-error select, .field.has-error textarea { border-color: var(--bad); }
+.err { color: var(--bad); font-size: 13px; margin-top: 5px; }
+.form-actions { display: flex; gap: 10px; margin-top: 8px; }
+
+/* ---------- сообщения ---------- */
+.flash { padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; border: 1px solid; font-size: 14.5px; }
+.flash.ok { background: var(--ok-bg); border-color: #b9dcc6; color: #1f5a37; }
+.flash.error { background: var(--bad-bg); border-color: #efbdb8; color: #85241e; }
+.flash.warn { background: var(--warn-bg); border-color: #ecd49a; color: #6f4c0c; }
+
+/* ---------- кворум ---------- */
+.quorum { border-left: 5px solid var(--bad); }
+.quorum.ok { border-left-color: var(--ok); }
+.q-verdict { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.q-verdict b { font: 700 20px Georgia, serif; }
+.meter { margin: 12px 0 4px; }
+.meter .row { display: flex; justify-content: space-between; font-size: 13.5px; color: var(--muted); }
+.meter .row b { color: var(--ink); }
+.bar { height: 9px; background: var(--gray-bg); border-radius: 99px; overflow: hidden; margin-top: 5px; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+.bar i.good { background: var(--ok); }
+.reasons { margin: 12px 0 0; padding-left: 18px; color: var(--bad); font-size: 14px; }
+.kv { display: grid; grid-template-columns: 150px 1fr; gap: 6px 14px; margin: 0; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; }
+.pipeline .line { display: grid; grid-template-columns: 170px 1fr 28px; align-items: center; gap: 12px; margin: 9px 0; font-size: 14px; }
+.vote-grid { display: grid; grid-template-columns: 1fr 170px; gap: 8px 14px; align-items: center; }
+
+/* ---------- вход ---------- */
+.login-card { padding: 30px; }
+.login-card h1 { font-size: 26px; margin-bottom: 4px; }
+.demo { margin-top: 18px; font-size: 13px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 14px; }
+.demo code { background: var(--gray-bg); padding: 1px 6px; border-radius: 4px; color: var(--ink); }
+
+/* ---------- печатный протокол ---------- */
+.paper { background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 48px 56px; max-width: 800px; margin: 0 auto;
+         font-family: "Times New Roman", Times, serif; font-size: 16px; line-height: 1.6; box-shadow: 0 6px 24px rgba(20,36,59,.08); }
+.paper h1 { text-align: center; font-size: 22px; margin-bottom: 4px; }
+.paper .center { text-align: center; }
+.paper table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; }
+.paper th, .paper td { border: 1px solid #333; padding: 5px 9px; text-align: left; font-size: 15px; }
+.paper .sign { display: flex; justify-content: space-between; margin-top: 50px; }
+.paper .sign span { border-top: 1px solid #333; padding-top: 4px; min-width: 220px; text-align: center; font-size: 14px; }
+
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; }
+  .side { position: static; height: auto; }
+  .main { padding: 22px 16px 50px; }
+  .tiles { grid-template-columns: 1fr 1fr; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .pipeline .line { grid-template-columns: 130px 1fr 24px; }
+}
+@media print {
+  .side, .noprint, .flash { display: none !important; }
+  .shell { display: block; }
+  .main { padding: 0; max-width: none; }
+  body { background: #fff; }
+  .paper { border: 0; box-shadow: none; padding: 0; }
+}
