@@ -1,7 +1,9 @@
 """FastAPI entry point for the Academic Council Secretary system."""
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from app.database.db import init_db
 from app.database.seed import migrate_legacy_database, seed_data
@@ -25,6 +27,11 @@ app = FastAPI(
 )
 app.include_router(items.router)
 app.include_router(meetings.router)
+app.mount(
+    "/mobile",
+    StaticFiles(directory=Path(__file__).resolve().parents[1] / "mobile_app", html=True),
+    name="mobile-app",
+)
 
 
 @app.get("/", tags=["Система"])

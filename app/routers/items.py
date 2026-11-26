@@ -4,6 +4,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field as SchemaField
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from app.database.db import get_session
@@ -133,6 +134,14 @@ def list_candidates(session: Session = Depends(get_session)):
     return session.exec(select(Candidate).order_by(Candidate.full_name)).all()
 
 
+@router.get("/candidates/{candidate_id}", response_model=CandidateOut)
+def get_candidate(candidate_id: int, session: Session = Depends(get_session)):
+    candidate = session.get(Candidate, candidate_id)
+    if candidate is None:
+        raise HTTPException(status_code=404, detail="Соискатель не найден")
+    return candidate
+
+
 @router.post("/candidates", response_model=CandidateOut, status_code=status.HTTP_201_CREATED)
 def create_candidate(payload: CandidateCreate, session: Session = Depends(get_session)):
     _ensure_specialty(session, payload.specialty_id)
@@ -141,6 +150,33 @@ def create_candidate(payload: CandidateCreate, session: Session = Depends(get_se
     session.commit()
     session.refresh(candidate)
     return candidate
+
+
+@router.put("/candidates/{candidate_id}", response_model=CandidateOut)
+def update_candidate(candidate_id: int, payload: CandidateCreate, session: Session = Depends(get_session)):
+    candidate = session.get(Candidate, candidate_id)
+    if candidate is None:
+        raise HTTPException(status_code=404, detail="Соискатель не найден")
+    _ensure_specialty(session, payload.specialty_id)
+    for field, value in payload.model_dump().items():
+        setattr(candidate, field, value)
+    session.add(candidate)
+    session.commit()
+    session.refresh(candidate)
+    return candidate
+
+
+@router.delete("/candidates/{candidate_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_candidate(candidate_id: int, session: Session = Depends(get_session)):
+    candidate = session.get(Candidate, candidate_id)
+    if candidate is None:
+        raise HTTPException(status_code=404, detail="Соискатель не найден")
+    session.delete(candidate)
+    try:
+        session.commit()
+    except IntegrityError as exc:
+        session.rollback()
+        raise HTTPException(status_code=409, detail="Нельзя удалить соискателя, пока у него есть диссертационные дела") from exc
 
 
 @router.get("/councils", response_model=list[CouncilOut])

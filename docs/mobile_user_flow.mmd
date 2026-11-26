@@ -1,0 +1,24 @@
+flowchart TD
+    Start([Открыть мобильный кабинет]) --> Home[Обзор: статистика и быстрые переходы]
+    Home --> Councils[Советы: состав и члены]
+    Home --> Candidates[Соискатели: поиск и список]
+    Candidates --> Create[Добавить карточку]
+    Candidates --> Edit[Изменить карточку]
+    Candidates --> Delete[Удалить карточку]
+    Create --> Validate{Поля корректны?}
+    Edit --> Validate
+    Validate -->|Нет| Error[Показать ошибку формы]
+    Error --> Create
+    Validate -->|Да| Save[POST / PUT в API]
+    Delete --> Confirm{Подтвердить удаление?}
+    Confirm -->|Нет| Candidates
+    Confirm -->|Да| Remove[DELETE в API]
+    Save --> Candidates
+    Remove --> Candidates
+    Home --> Cases[Дела: список диссертаций]
+    Cases --> AddCase[Создать дело]
+    AddCase --> SaveCase[POST /api/dissertations]
+    SaveCase --> Cases
+    Home --> Meetings[Заседания]
+    Meetings --> Attendance[Отметить явку]
+    Attendance --> Quorum[Проверить кворум]

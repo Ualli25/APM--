@@ -77,6 +77,7 @@ def client():
             "specialty": specialty.specialty_id,
             "council": council.council_id,
             "meeting": meeting.meeting_id,
+            "candidate": candidate.candidate_id,
             "members": [member.member_id for member in members],
         }
 
@@ -174,6 +175,38 @@ def test_missing_specialty_returns_404_without_creating_member(client):
 def test_unknown_member_and_council_return_404(client):
     assert client.get("/api/members/99999").status_code == 404
     assert client.get("/api/councils/99999/members").status_code == 404
+
+
+def test_candidate_crud_and_linked_delete_conflict(client):
+    created = client.post("/api/candidates", json={
+        "full_name": "Новый соискатель",
+        "degree_sought": "candidate",
+        "specialty_id": client.test_ids["specialty"],
+        "contact_info": "new@example.edu",
+    })
+    assert created.status_code == 201
+    candidate_id = created.json()["candidate_id"]
+    assert client.get(f"/api/candidates/{candidate_id}").json()["full_name"] == "Новый соискатель"
+
+    updated = client.put(f"/api/candidates/{candidate_id}", json={
+        "full_name": "Обновлённый соискатель",
+        "degree_sought": "doctor",
+        "specialty_id": client.test_ids["specialty"],
+    })
+    assert updated.status_code == 200
+    assert updated.json()["degree_sought"] == "doctor"
+    assert client.delete(f"/api/candidates/{candidate_id}").status_code == 204
+    assert client.get(f"/api/candidates/{candidate_id}").status_code == 404
+
+    linked_id = client.test_ids["candidate"]
+    blocked = client.delete(f"/api/candidates/{linked_id}")
+    assert blocked.status_code == 409
+
+
+def test_mobile_pwa_is_served_by_fastapi(client):
+    response = client.get("/mobile/")
+    assert response.status_code == 200
+    assert "Мобильный кабинет" in response.text
 
 
 def test_meeting_rejects_missing_council_instead_of_database_error(client):

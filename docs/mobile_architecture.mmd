@@ -1,0 +1,25 @@
+flowchart LR
+    subgraph Client[Мобильный PWA-клиент · mobile_app]
+        UI[5 разделов интерфейса]
+        Forms[Формы и клиентская проверка]
+        SW[Service Worker · оболочка]
+        UI --> Forms
+        UI --> SW
+    end
+
+    subgraph Server[FastAPI · app]
+        Static[/mobile/ · HTML CSS JS]
+        API[/api/* · REST/]
+        Routes[Роутеры справочников и заседаний]
+        Static --> UI
+        API --> Routes
+    end
+
+    subgraph Data[Хранение]
+        ORM[SQLModel]
+        SQLite[(SQLite database.db)]
+        ORM --> SQLite
+    end
+
+    Forms -->|HTTPS в развёрнутой среде / HTTP локально| API
+    Routes --> ORM
